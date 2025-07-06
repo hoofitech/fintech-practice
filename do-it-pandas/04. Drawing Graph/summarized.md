@@ -26,7 +26,7 @@
 4. fig.set_tight_layout(True): 하위 그래프 사이에 제목을 삽입할 공간을 확보합니다.
 
 📊 Anscombe's Quartet 시각화
-![Anscombe plot](Anscombe_plot.png)
+![Anscombe plot](Vizualization/Anscombe_plot.png)
 
 ## 04-3. matplotlib으로 그래프그리기
 1. axes.set_xlabel: Axes 객체의 x축 이름을 설정
