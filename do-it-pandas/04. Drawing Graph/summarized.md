@@ -279,7 +279,7 @@ fig.figure.suptitle('Regression plot of Total Bill and Tip', y= 1.03)
 plt.show()
 ```
 📊 Scatterplot by sns.lmplot() 시각화
-![Scatterplot by sns.lmplot()](Vizualizations/lmplot_sns.png)
+![Scatterplot by sns.lmplot()](Vizualizations/lmplot_sns(1).png)
 
 ##### 4. 조인트 그래프 그리기 
 1. sns.jointplot(data=데이터셋, x= '분석할 데이터열', y= '분석할 데이터열'): JointGrid 객체로 산점도 그래프와 x축과 y축에 일변량 그래프를 함께 그리는 함수
