@@ -310,5 +310,37 @@ plt.show()
 📊 hexbin by seaborn 시각화
 ![hexbin by seaborn](Vizualizations/hexbin_sns.png)
 
+##### 6. 2차원 밀도 분포 그래프 그리기-① kdeplot()
+1. sns.kdeplot(data= 데이터셋, x="분석할 데이터열", y="분석할 데이터열", fill=True, ax=ax): kdeplot()에 두가지 변수를 전달하고 fill=True를 매개변수로 전달하면 음영효과를 줄 수 있다.
+
+```python
+kdeplot()으로 2차원 밀도 분포 그리기 예제
+kde, ax = plt.subplots()
+
+sns.kdeplot(data = tips, x= "total_bill", y="tip", fill=True, ax=ax) #sns.kdeplot() 메서드를 통해서 2차원 밀도 분포 그래프를 그릴 수 있다. 일변량 밀도 분포 그래프도 이 메서드 사용함. 매개변수 fill에 True를 전달하면 그래프에 음영효과를 줄 수 있다
+
+ax.set_title('Kernel Density Plot of Total Bill and Tip')
+ax.set_xlabel('Total Bill')
+ax.set_ylabel('Tip')
+
+plt.show()
+```
+📊 kdeplot_2dem by kdeplot 시각화
+![kdeplot_2dem by kdeplot](Vizualizations/kdeplot_2dem.png)
+
+##### 7. 2차원 밀도 분포 그래프 그리기-② joinplot()
+1. sns.joinplot(data= 데이터셋, x='분석할 데이터열', y='분석할 데이터열', kind="kde"): jointplot()의 매개변수로 kind="kde"를 전달하면 2차원 밀도 분포 그래프로 그릴 수 있다.
+```python
+jointplot()으로 2차원 밀도 분포 그리기 예제
+kde2d = sns.jointplot(data=tips, x= "total_bill", y = "tip", kind='kde') #sns.jointplot()으로도 밀도 분포 그래프를 그릴 수 있습니다. 매개변수 kind에 'kde'를 전달
+
+kde2d.set_axis_labels(xlabel = 'Total bill', ylabel = 'Tip')
+kde2d.figure.suptitle('Hexbin Joint plot of Total Bill and Tip', y=1.03)
+
+plt.show()
+```
+📊 kdeplot_2dem by jointplot 시각화
+![kdeplot_2dem by jointplot](Vizualizations/jointplot_2dem.png)
+
 
 
