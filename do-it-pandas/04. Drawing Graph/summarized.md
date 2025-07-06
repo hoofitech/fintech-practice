@@ -147,10 +147,101 @@ plt.show()
 ```
 📊 Histogram by seaborn 시각화
 ![Histogram by seaborn](Vizualizations/Histgram_sns.png)
+
 ##### 2. 밀도 분포 그래프 그리기
 1. 밀도 분포 그래프: 각 값을 중심으로 정규 분포를 그리고 곡선 아래 넓이가 1이 되도록 겹친 그래프를 매끄럽게 만든것,
   커널 밀도 추정(kernel density estimation)이라고도 함
 2. sns.kdeplot(data=데이터셋, x='분석할 데이터열', ax=ax): 밀도 분포 그래프를 그리는 메서드
-   
+```python
+seaborn으로 밀도 분포 그래프 그리기 예제
+den , ax = plt.subplots()
+
+sns.kdeplot(data = tips, x = 'total_bill', ax= ax) #sns.kdeplot() 메서드로 밀도 분포 그래프를 그릴 수 있다.
+
+ax.set_title('Total Bill Density')
+ax.set_xlabel('Total Bill')
+ax.set_ylabel('Unit Probablity')
+
+plt.show()
+```
+📊 Kdeplot by seaborn 시각화
+![Kdeplot by seaborn](Vizualizations/Kdeplot_sns.png)
+
 ##### 3. 러그 그래프 그리기
-1. 
+1. 러그 그래프는 변수 분포를 1차원으로 나타냄
+2. 러그 그래프는 일반적으로 다른 유형의 그래프에 추가정보를 제공할 때 사용(ex.히스토그램 + 러그)
+```python
+seaborn 이용하여 러그 그래프 그리기 예제
+rug, ax = plt.subplots()
+
+sns.rugplot(data=tips, x= 'total_bill', ax=ax)
+sns.histplot(data=tips, x= 'total_bill', ax= ax)
+
+ax.set_title('Rug plot and histogram of Total Bill')
+
+plt.show()
+```
+
+📊 Rugplot by seaborn 시각화
+![Rugplot by seaborn](Vizualizations/Rugplot_sns.png)
+
+##### 4. 분포 그래프 그리기
+1. sns.displot(data=데이터셋, x='분석할 데이터열', kde= True, rug=True): 여러개의 일변량 그래프를 하나의 그래프로 표현할 수 있다
+2. 기본 그래프는 히스토그램이지만 매개변수 kde, rug의 인수를 True로 지정하여 밀도분포그래프와 러그 그래프를 함께 표현할 수 있음
+3. displot()은 그림객체인 FaceGrid 객체를 반환한다.
+   • fig.set_axis_labels(x_var='x축의 데이터', y_var = 'y축의 데이터'): FaceGrid 객체이므로 이 메서드로 축의 이름을 지정할 수 있다
+   • fig.figure.suptitle(): FacrGrid 객체를 이 메서드로 제목을 지정할 수 있다
+
+```python
+seaborn을 이용하여 분포 그래프 그리기 예제
+fig.set_axis_labels(x_var = 'Total Bill', y_var = 'Count') #FaceGrid 객체이기 때문에 set_axis_labels메서드로 x축, y축 이름 지정
+fig.figure.suptitle('Distribution of Total Bill') #figure.suptitle로 이름을 설정한다.
+
+plt.show()
+```
+
+📊 Displot by seaborn 시각화
+![Displot by seaborn](Vizualizations/Displot_sns.png)
+
+##### 5. 막대그래프 그리기
+1. 히스토그램과 비슷하지만 막대로 이산변수의 개수를 표현함
+2. sns.countplot(data=데이터셋, x='분석할 데이터열', palette = 'viridis', ax=ax): 막대그래프를 그릴 수 있는 함수임
+3. palette 매개변수에 색상 팔레트를 지정하여 각 그래프의 색상을 정할 수 있다. 여기서는 'viridis'라는 팔레트 사용
+
+```python
+seaborn을 이용하여 막대그래프 그리기 예제
+count, ax = plt.subplots()
+sns.countplot(data = tips, x = 'day', palette = 'viridis', ax= ax) #counplot() 메서드로 막대그래프를 그릴 수 있으며, palette로 그래프의 색상을 지정함
+
+ax.set_title('Count of days')
+ax.set_xlabel('Day of the Week')
+ax.set_ylabel('Frequency')
+
+plt.show()
+```
+
+📊 Countplot by seaborn 시각화
+![Countplot by seaborn](Vizualizations/Countplot_sns.png)
+
+#### 이변량 그래프 그리기
+
+##### 1. 산점도 그래프 그리기 ①-sns.scatterplot()
+1. sns.scatterplot(data=데이터셋, x='분석할 데이터열', y='분석할 데이터열', ax=ax): Axes 객체로 산점도 그래프를 반환함
+2. 
+```python
+scatterplot()으로 산점도 그래프 그리기 예제
+scatter, ax = plt.subplots()
+
+sns.scatterplot(data = tips, x='total_bill', y = 'tip', ax=ax) #plt.scatterplots(): Axes객체를 반환하는 산점도 그래프를 그리는 메서드
+
+ax.set_title('Scatter Plot of Total Bill and Tip')
+ax.set_xlabel('Total Bill')
+ax.set_ylabel('Tip')
+
+plt.show()
+```
+
+📊 Scatterplot by sns.scatterplot() 시각화
+![Scatterplot by sns.scatterplot()](Vizualizations/Scatterplot_sns_Axes.png)
+
+##### 2. 산점도 그래프 그리기 ②-sns.regplot()
