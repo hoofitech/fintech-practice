@@ -26,7 +26,7 @@
 4. fig.set_tight_layout(True): 하위 그래프 사이에 제목을 삽입할 공간을 확보합니다.
 
 📊 Anscombe's Quartet 시각화
-![Anscombe plot](Anscombe_plot.png)
+![Anscombe plot](Vizualizations/Anscombe_plot.png)
 
 ## 04-3. matplotlib으로 그래프그리기
 1. axes.set_xlabel: Axes 객체의 x축 이름을 설정
@@ -47,6 +47,9 @@ axes1.set_ylabel('Frequency')
 
 plt.show()
 ```
+📊 Histogram by matplotlib 시각화
+![histogram by matplotlib](Vizualizations/Histogram_plt.png)
+
 ### 이변량 그래프 그리기
 #### 산점도 그래프 그리기
 axes.scatter(x축의 값, y축의 값): 산점도그래프 생성하는 메서드
@@ -63,6 +66,8 @@ axes1.set_ylabel('Tip')
 
 plt.show()
 ```
+📊 Scatterplot by matplotlib 시각화
+![Scatterplot by matplotlib](Vizualizations/Scatterplot_plt.png)
 #### 박스 그래프 그리기
 axes.boxplot(x=[데이터1, 데이터2], labels=[데이터이름]): 박스형 그래프로 두가지 변수를 비교함
 ```python
@@ -84,6 +89,9 @@ axes1.set_title('Boxplot of Tips by Sex')
 
 plt.show()
 ```
+📊 Boxplot by matplotlib 시각화
+![Boxplot by matplotlib](Vizualizations/Boxplot_plt.png)
+
 ### 다변량 그래프 그리기
 1. 3개 이상의 변수를 나타내려면 산점도 그래프에서 점의 색깔 or 크기로 나타내는 방법이 있음
 2. 사람은 크기 차이보다 색상 차이를 더 쉽게 구분함
@@ -117,6 +125,9 @@ scatter_plot.suptitle('Total Bill vs Tip')
 
 plt.show()
 ```
+📊 Total_billvsTip 시각화
+
+![Total_billvsTip](Vizualizations/TotalbillvsTip.png)
 
 ## 04-4. seaborn으로 그래프 그리기
 seaborn 라이브러리는 matplotlib에 기반을 둔 통계 그래프의 특화된 라이브러리이다.
@@ -134,9 +145,12 @@ ax.set_title('Total Bill Histogram')
 
 plt.show()
 ```
+📊 Histogram by seaborn 시각화
+![Histogram by seaborn](Vizualizations/Histgram_sns.png)
 ##### 2. 밀도 분포 그래프 그리기
 1. 밀도 분포 그래프: 각 값을 중심으로 정규 분포를 그리고 곡선 아래 넓이가 1이 되도록 겹친 그래프를 매끄럽게 만든것,
   커널 밀도 추정(kernel density estimation)이라고도 함
 2. sns.kdeplot(data=데이터셋, x='분석할 데이터열', ax=ax): 밀도 분포 그래프를 그리는 메서드
+   
 ##### 3. 러그 그래프 그리기
 1. 
