@@ -245,3 +245,70 @@ plt.show()
 ![Scatterplot by sns.scatterplot()](Vizualizations/Scatterplot_sns_Axes.png)
 
 ##### 2. 산점도 그래프 그리기 ②-sns.regplot()
+1. sns.regplot(data=데이터셋, x='분석할 데이터열', y='분석할 데이터열', ax=ax): Axes 객체로 산점도 그래프 그리는 함수, 회귀선도 함께 그림, 매개변수 fit_reg를 False로 설정하면 회귀선은 그리지 않음
+2. 회귀선: 두 변수간의 상관관계를 선형으로 나타낸 것
+
+``` python
+regplot()으로 산점도 그래프 그리기 예제
+reg, ax = plt.subplots()
+
+sns.regplot(data=tips, x='total_bill', y='tip', ax=ax) #sns.regplot(): Axes 객체를 생성하는 산점도그래프 메서드, 회귀선도 같이 그린다
+
+ax.set_title('Regression Plot of Total Bill and Tip')
+ax.set_xlabel('Total Bill')
+ax.set_ylabel('Tip')
+
+plt.show()
+```
+
+📊 Scatterplot by sns.regplot() 시각화
+![Scatterplot by sns.regplot()](Vizualizations/Regplot_sns.png)
+
+##### 3. 산점도 그래프 그리기 ③-sns.lmplot()
+1. sns.lmplot(data=tips, x='total_bill', y='tip'): Facegrid 객체를 직접 생성하여 산점도 그래프를 회귀선과 같이 반환하는 함수
+2. fig.figure.
+
+```python
+lmplot()으로 산점도 그래프 그리기 예제
+fig = sns.lmplot(data = tips, x='total_bill', y = 'tip')
+
+fig.set_axis_labels('Total Bill', 'Tip') #set_axis_labels()안에는 두 가지 인수만 넣으면 됨
+fig.figure.suptitle('Regression plot of Total Bill and Tip', y= 1.03)
+
+
+plt.show()
+```
+📊 Scatterplot by sns.lmplot() 시각화
+![Scatterplot by sns.lmplot()](Vizualizations/lmplot_sns.png)
+
+##### 4. 조인트 그래프 그리기 
+1. sns.jointplot(data=데이터셋, x= '분석할 데이터열', y= '분석할 데이터열'): JointGrid 객체로 산점도 그래프와 x축과 y축에 일변량 그래프를 함께 그리는 함수
+```python
+seaborn으로 조인트그래프 그리기 예제
+joint = sns.jointplot(data=tips, x='total_bill', y ='tip') #sns.jointplot()는 하위 그래프를 반환하지 않으므로 하위영역을 그릴 그림 영역의 생성이 필요 없음. JointGrid 객체를 반환함
+joint.set_axis_labels('Total Bill', 'Tip') 
+
+joint.figure.suptitle('Joint Plot of Total Bill and Tip', y= 1.03) #set_title() 메서드는 각 Axes 객체에 제목을 정할 때 사용하고, suptitle() 메서드는 figure객체의 제목을 정할 때 사용한다. y매개변수는 제목의 위치를 설정하는데에 사용하는데 1.03은 좀 높은편(자주쓰임)
+
+plt.show()
+```
+📊 Joinplot by seaborn 시각화
+![Joinplot by seaborn](Vizualizations/jointplot_sns.png)
+
+##### 5. 육각 그래프 그리기
+1. 2개의 변수를 비교할 때는 산점도 그래프가 유용하지만 표시할 데이터가 너무 많다면 인접한 점을 구간별로 묶어서 표시하는 육각 그래프가 깔끔하다.
+2. sns.joinplot(data= 데이터셋, x='분석할 데이터열', y='분석할 데이터열', kind="hex"): joinplot()함수에 매개변수 kind="hex"만 지정하면 된다
+```python
+seaborn으로 육각그래프 그리기 예제
+hexbin = sns.jointplot(data = tips, x= "total_bill", y= "tip", kind ="hex") #2개의 변수를 비교할 때 산점도의 인접한 점들을 구간별로 묶어서 표시하는 육각 그래프, jointplot() 메서드에 매개변수 kind ="hex"만 지정하면 된다.
+
+hexbin.set_axis_labels('Total Bill', 'tip')
+hexbin.figure.suptitle('Hexbin Joint Plot of Total Bill and Tip', y =1.03)
+
+plt.show()
+```
+📊 hexbin by seaborn 시각화
+![hexbin by seaborn](Vizualizations/hexbin_sns.png)
+
+
+
