@@ -594,7 +594,7 @@ plt.show()
 | `bbox_to_anchor` | 범례를 축 밖으로 위치시킬 때 좌표 지정 (튜플 형태)                              |
 | `ncol`           | 범례 항목의 열 수                                                  |
 
-'''python
+```python
 relplot()을 사용하여 여러개의 범주형 변수로 그래프 나누기 예제
 colors = {
     "Yes" : "#f1a340",
@@ -630,6 +630,7 @@ facet2.figure.set_tight_layout(True)
 
 plt.show()
 ```
+
 📊 relplot(col,row) by seaborn 시각화
 ![relplot(col,row) by seaborn](Vizualizations/replot_col_row.png)
 
