@@ -634,3 +634,94 @@ plt.show()
 📊 relplot(col,row) by seaborn 시각화
 ![relplot(col,row) by seaborn](Vizualizations/replot_col_row.png)
 
+##### 3. FacetGrid 객체로 그래프 직접 나누기
+1. 패싯 기능의 핵심 기능인 col이나 col_wrap과 같은 매개변수는 그림 영역 객체에 기반을 둔 시각화 함수에서만 사용 가능
+2. 시각화 함수에서 패싯과 관련된 매개변수를 제공하지 않는다면 FacetGrid 객체로 실행
+3. sns.FacetGrid(데이터셋, col='열 그래프 구분 기준')으로 FacetGrid 객체를 먼저 생성한 다음 map()에 그래프 종류와 x축으로 지정항 열 이름을 순서대로 전달
+4. 일변량, 이변량 다변량 모두 가능하다.
+
+
+```python
+FacteGrid()를 활용하여 그래프 나누기 예제
+facet = sns.FacetGrid(tips, col ="time")
+
+facet.map(sns.histplot, 'total_bill') #map(그래프종류, x축으로 지정할 열 이름)
+plt.show()
+#FacetGrid 객체로 패싯기능을 구현하려면 까다롭기 때문에 될 수 있으면 seaborn 그래프 함수를 구현하세요.
+```
+
+📊 FacetGrid by seaborn 시각화
+
+![FacetGrid by seaborn](Vizualizations/facegrid.png)
+
+5. FacetGrid객체를 반환하는 함수 중 sns.catplot()도 있음. map()이나 먼저 FacetGrid 객체를 생성해줘야하는 복잡함없이 kind 플록 지정만 하면 되므로 간단하다. 단, strip, swarm, box, boxen, bar, violin, count, point 함수로 사용이 제한된다.
+
+```python
+catplot()을 활용하여 그래프 나누기 예제
+facet = sns.catplot(x="day",
+                    y="total_bill",
+                    hue="sex",
+                    data=tips,
+                    row="smoker",
+                    col="time",
+                    kind = "violin",
+                    height =3)
+plt.show()
+```
+
+📊 catplot by seaborn 시각화
+
+![catplot by seaborn](Vizualizations/catplot.png)
+
+### seaborn 스타일 알아보기
+
+#### 스타일 알아보기
+1. seaborn에서는 darkgrid, whitegrid, dark, white, ticks 스타일을 지원한다.
+
+📊 seaborn의 다양한 스타일
+
+![various styles in seaborn](Vizualizations/var_style.png)
+
+#### 그래프 컨텍스트 설정하기
+1. seaborn에서는 글자 크기, 선 굴기, 축 눈금 크기 등 그래프의 각 요소 크기를 조절 할 수 있다
+2. paper, notebook, talk, poster 네가지 컨텍스트가 있다.
+
+📊 각 컨텍스트를 적용한 그래프  
+![contexts in seaborn](Vizualizations/context.png)
+
+## 04-5 판다스로 그래프 그리기
+1. 판다스에 내장된 시각화 함수도 matplotlib을 사용하는 래퍼함수이다.
+2. DataFrame.plot.<그래프 유형> 또는 Series.plot.<그래프 유형> 형식이다.
+
+### 1. 히스토그램 그리기
+1. 한가지 변수를 나타낸 히스토그램
+```python
+pandas로 히스토그램 그리기 예제
+fig, ax = plt.subplots()
+tips['total_bill'].plot.hist(ax=ax)
+plt.show()
+```
+
+📊 Histogram by pd  
+![Histogram by pd](Vizualizations/hist_pd.png)
+
+2. 두가지 변수를 나타낸 히스토그램
+```python
+pandas로 히스토그램 그리기 예제
+fig, ax = plt.subplots()
+tips[['total_bill', 'tip']].plot.hist(alpha=0.5, bins=20, ax=ax)
+plt.show()
+```
+
+📊 Histogram by pd  
+![Histogram by pd](Vizualizations/hist_pd_2.png)
+
+### 2. 밀도 분포 그래프 그리기
+```python
+pandas로 밀도 분포 그래프 그리기 예제
+fig, ax = plt.subplots()
+tips['tip'].plot.kde(ax=ax)
+plt.show()
+```
+📊 kdeplot by pd  
+![kdeplot by pd](Vizualizations/kde_pd.png)
