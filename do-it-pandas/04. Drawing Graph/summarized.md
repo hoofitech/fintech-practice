@@ -725,3 +725,44 @@ plt.show()
 ```
 📊 kdeplot by pd  
 ![kdeplot by pd](Vizualizations/kde_pd.png)
+
+### 3. 산점도 그리기
+```python
+pandas로 산점도 그래프 그리기 예제
+fig, ax= plt.subplots()
+tips.plot.scatter(x='total_bill', y = 'tip', ax=ax)
+plt.show()
+```
+📊 scatterplot by pd  
+![scatterplot by pd](Vizualizations/scatter_pd.png)
+
+### 4. 육각 그래프 그리기
+```python
+pandas로 육각 그래프 그리기 예제
+fig, ax = plt.subplots()
+tips.plot.hexbin(x='total_bill', y= 'tip', ax=ax)
+plt.show()
+```
+📊 hexbin by pd  
+![hexbin by pd](Vizualizations/hexbin_pd.png)  
+
+-육각형의 크기는 매개변수 grandsize로 조정할 수 있다.
+```python
+pandas로 육각 그래프 그리기 예제
+fig, ax = plt.subplots()
+tips.plot.hexbin(x='total_bill', y='tip', gridsize=10, ax= ax)
+plt.show()
+```
+
+📊 hexbin by pd  
+![hexbin by pd](Vizualizations/hexbin_grid.png)  
+
+### 5. 박스 그래프 그리기
+```python
+fig, ax = plt.subplots()
+tips.plot.box(ax=ax)
+plt.show()
+```
+
+📊 boxplot by pd  
+![boxplot by pd](Vizualizations/boxplot_pd.png)  
