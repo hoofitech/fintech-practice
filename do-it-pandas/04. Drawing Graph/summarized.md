@@ -200,7 +200,7 @@ fig.figure.suptitle('Distribution of Total Bill') #figure.suptitle로 이름을 
 plt.show()
 ```
 
-📊 Displot by seaborn 시각화
+📊 Displot by seaborn 시각화  
 ![Displot by seaborn](Vizualizations/Displot_sns.png)
 
 ##### 5. 막대그래프 그리기
@@ -278,7 +278,7 @@ fig.figure.suptitle('Regression plot of Total Bill and Tip', y= 1.03)
 
 plt.show()
 ```
-📊 Scatterplot by sns.lmplot() 시각화
+📊 Scatterplot by sns.lmplot() 시각화  
 ![Scatterplot by sns.lmplot()](Vizualizations/lmplot_sns.png)
 
 ##### 4. 조인트 그래프 그리기 
@@ -292,7 +292,7 @@ joint.figure.suptitle('Joint Plot of Total Bill and Tip', y= 1.03) #set_title() 
 
 plt.show()
 ```
-📊 Joinplot by seaborn 시각화
+📊 Joinplot by seaborn 시각화  
 ![Joinplot by seaborn](Vizualizations/jointplot_sns.png)
 
 ##### 5. 육각 그래프 그리기
@@ -307,7 +307,7 @@ hexbin.figure.suptitle('Hexbin Joint Plot of Total Bill and Tip', y =1.03)
 
 plt.show()
 ```
-📊 hexbin by seaborn 시각화
+📊 hexbin by seaborn 시각화  
 ![hexbin by seaborn](Vizualizations/hexbin_sns.png)
 
 ##### 6. 2차원 밀도 분포 그래프 그리기-① kdeplot()
@@ -512,7 +512,7 @@ scatter = sns.lmplot(data=tips,
 plt.show()
 ```
 
-📊 lmplot(hue) by seaborn 시각화
+📊 lmplot(hue) by seaborn 시각화  
 ![lmplot(hue) by seaborn](Vizualizations/lmplot_hue.png)
 
 3. sns.pairplot()의 매개변수로 색깔을 구분하여 다변량그래프를 그릴 수 있다.
