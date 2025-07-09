@@ -250,3 +250,51 @@ ebola_long['country'] = country_values
 
 [1952 rows x 6 columns]
 ```
+
+## 한 번에 분할하고 합치기
+### 깔끔한 데이터 한 번에 만들기
+1. split()의 매개변수 expand로 리스트 시리즈 대신 분할 결과를 새로운 열로 만든 데이터 프레임을 반환
+```python
+ebola_long = ebola.melt(id_vars = ["Date", "day"])
+variable_split = ebola_long.variable.str.split('_', expand=True)
+print(variable_split)
+```
+📝 실행결과
+```
+           0       1
+0      Cases  Guinea
+1      Cases  Guinea
+2      Cases  Guinea
+3      Cases  Guinea
+4      Cases  Guinea
+...      ...     ...
+1947  Deaths    Mali
+1948  Deaths    Mali
+1949  Deaths    Mali
+1950  Deaths    Mali
+1951  Deaths    Mali
+
+[1952 rows x 2 columns]
+```
+2. 파이썬과 판다스 다중 할당 기능을 사용하여 새로 분할한 열을 원본 데이터프레임에 바로 할당할 수도 있다.
+```python
+ebola_long[['status', 'country']] = variable_split
+print(ebola_long)
+```
+📝 실행결과
+```
+            Date  Day      variable   value  status country
+0       1/5/2015  289  Cases_Guinea  2776.0   Cases  Guinea
+1       1/4/2015  288  Cases_Guinea  2775.0   Cases  Guinea
+2       1/3/2015  287  Cases_Guinea  2769.0   Cases  Guinea
+3       1/2/2015  286  Cases_Guinea     NaN   Cases  Guinea
+4     12/31/2014  284  Cases_Guinea  2730.0   Cases  Guinea
+...          ...  ...           ...     ...     ...     ...
+1947   3/27/2014    5   Deaths_Mali     NaN  Deaths    Mali
+1948   3/26/2014    4   Deaths_Mali     NaN  Deaths    Mali
+1949   3/25/2014    3   Deaths_Mali     NaN  Deaths    Mali
+1950   3/24/2014    2   Deaths_Mali     NaN  Deaths    Mali
+1951   3/22/2014    0   Deaths_Mali     NaN  Deaths    Mali
+
+[1952 rows x 6 columns]
+```
