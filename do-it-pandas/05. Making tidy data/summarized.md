@@ -298,3 +298,144 @@ print(ebola_long)
 
 [1952 rows x 6 columns]
 ```
+
+# 05-4. 변수가 행과 열 모두에 있을 때
+### 행과 열 모두에 있는 변수 정리하기
+1. weather.csv 데이터셋 불러오기
+```python
+weather = pd.read_csv('weather.csv')
+print(weather.iloc[:5,:11]
+```
+
+📝 실행결과
+```
+        id  year  month element  d1    d2    d3  d4    d5  d6  d7
+0  MX17004  2010      1    tmax NaN   NaN   NaN NaN   NaN NaN NaN
+1  MX17004  2010      1    tmin NaN   NaN   NaN NaN   NaN NaN NaN
+2  MX17004  2010      2    tmax NaN  27.3  24.1 NaN   NaN NaN NaN
+3  MX17004  2010      2    tmin NaN  14.4  14.4 NaN   NaN NaN NaN
+4  MX17004  2010      3    tmax NaN   NaN   NaN NaN  32.1 NaN NaN
+```
+* 월별 날짜의 최저 기온(tmin)과 최고 기온(tmax)을 포함한다.
+* element열은 값이 2개이므로 넓게 피벗을 적용할 수 있으며, 날짜변수는 값으로 피벗 되돌리기 해야함
+
+2. 데이터셋의 날짜 정리하기
+```python
+weather_melt = weather.melt(
+    id_vars = "["id", "year", "month", "element"]
+    var_name = "day"
+    value_name = "temp"
+)
+print(weather_melt)
+```
+📝 실행결과
+```
+          id  year  month element  day  temp
+0    MX17004  2010      1    tmax   d1   NaN
+1    MX17004  2010      1    tmin   d1   NaN
+2    MX17004  2010      2    tmax   d1   NaN
+3    MX17004  2010      2    tmin   d1   NaN
+4    MX17004  2010      3    tmax   d1   NaN
+..       ...   ...    ...     ...  ...   ...
+677  MX17004  2010     10    tmin  d31   NaN
+678  MX17004  2010     11    tmax  d31   NaN
+679  MX17004  2010     11    tmin  d31   NaN
+680  MX17004  2010     12    tmax  d31   NaN
+681  MX17004  2010     12    tmin  d31   NaN
+
+[682 rows x 6 columns]
+```
+3. pivot_table 메서드를 사용하여 element 열에 저장된 변수를 피벗
+```python
+weather_tidy = weather_melt.pivot_table(
+    index=['id', 'year', 'month', 'day']
+    columns = 'element',
+    values = 'temp'
+)
+print(weather_tidy)
+```
+📝 실행결과
+```
+element                 tmax  tmin
+id      year month day            
+MX17004 2010 1     d30  27.8  14.5
+             2     d11  29.7  13.4
+                   d2   27.3  14.4
+                   d23  29.9  10.7
+                   d3   24.1  14.4
+             3     d10  34.5  16.8
+                   d16  31.1  17.6
+                   d5   32.1  14.2
+             4     d27  36.3  16.7
+             5     d27  33.2  18.2
+             6     d17  28.0  17.5
+                   d29  30.1  18.0
+             7     d3   28.6  17.5
+                   d14  29.9  16.5
+             8     d23  26.4  15.0
+                   d5   29.6  15.8
+                   d29  28.0  15.3
+                   d13  29.8  16.5
+                   d25  29.7  15.6
+                   d31  25.4  15.4
+                   d8   29.0  17.3
+             10    d5   27.0  14.0
+                   d14  29.5  13.0
+                   d15  28.7  10.5
+                   d28  31.2  15.0
+                   d7   28.1  12.9
+             11    d2   31.3  16.3
+                   d5   26.3   7.9
+                   d27  27.7  14.2
+                   d26  28.1  12.1
+                   d4   27.2  12.0
+             12    d1   29.9  13.8
+                   d6   27.8  10.5
+```
+4. reset_index() 메서드를 사용하여 계층 열을 평면화
+```python
+weather_tidy_flat = weather_tidy.reset_index()
+print(weather_tigy_flat)
+```
+📝 실행결과
+```
+element       id  year  month  day  tmax  tmin
+0        MX17004  2010      1  d30  27.8  14.5
+1        MX17004  2010      2  d11  29.7  13.4
+2        MX17004  2010      2   d2  27.3  14.4
+3        MX17004  2010      2  d23  29.9  10.7
+4        MX17004  2010      2   d3  24.1  14.4
+5        MX17004  2010      3  d10  34.5  16.8
+6        MX17004  2010      3  d16  31.1  17.6
+7        MX17004  2010      3   d5  32.1  14.2
+8        MX17004  2010      4  d27  36.3  16.7
+9        MX17004  2010      5  d27  33.2  18.2
+10       MX17004  2010      6  d17  28.0  17.5
+11       MX17004  2010      6  d29  30.1  18.0
+12       MX17004  2010      7   d3  28.6  17.5
+13       MX17004  2010      7  d14  29.9  16.5
+14       MX17004  2010      8  d23  26.4  15.0
+15       MX17004  2010      8   d5  29.6  15.8
+16       MX17004  2010      8  d29  28.0  15.3
+17       MX17004  2010      8  d13  29.8  16.5
+18       MX17004  2010      8  d25  29.7  15.6
+19       MX17004  2010      8  d31  25.4  15.4
+20       MX17004  2010      8   d8  29.0  17.3
+21       MX17004  2010     10   d5  27.0  14.0
+22       MX17004  2010     10  d14  29.5  13.0
+23       MX17004  2010     10  d15  28.7  10.5
+24       MX17004  2010     10  d28  31.2  15.0
+25       MX17004  2010     10   d7  28.1  12.9
+26       MX17004  2010     11   d2  31.3  16.3
+27       MX17004  2010     11   d5  26.3   7.9
+28       MX17004  2010     11  d27  27.7  14.2
+29       MX17004  2010     11  d26  28.1  12.1
+30       MX17004  2010     11   d4  27.2  12.0
+31       MX17004  2010     12   d1  29.9  13.8
+32       MX17004  2010     12   d6  27.8  10.5
+```
+
+⭐요약
+* melt()메서드를 사용하여 넓은 데이터 -> 긴 데이터로 바꿀 수 있다.
+* melt()메서드의 매개변수는 id_vars, var_name, value_name가 있고, 모두 깔끔한 데이터를 만드는데 핵심적인 매개변수이다.
+* str.split(기준문자열)을 통해서 셀 내용을 나눌 수 있다.
