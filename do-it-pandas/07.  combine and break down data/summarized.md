@@ -759,3 +759,187 @@ Name: 0, dtype: object
 ```
 * 판다스는 병합된 데이터에 중복된 열 이름이 생기면 자동으로 접미사를 추가한다. _x, _y와 같이 추가됨
 * 일반적으로 실무에서는 다대다 병합은 하지 않으려고 한다. 모든 키의 곱집합만큼 병합이 일어나기 때문
+
+### assert 문으로 병합 결과 확인하기
+* 병합 전후의 결과를 확인하는 방법은 데이터 행 개수를 확인하는 것이다
+* 다대다 결합: 병합한 데이터프레임의 모든 행 개수 < 결과 데이터프레임의 행 개수이면 보통은 바람직하지 않은 상황이다
+1. ps와 vs와 ps_vs의 shape 살펴보기
+```python
+print(ps.shape)
+print(vs.shape)
+print(ps_vs.shape)
+```
+📝 실행결과
+```
+(19, 7)
+(21, 7)
+(148, 13)
+```
+
+2. assert 문의 조건으로 의도대로 잘 실행되었는지 않았을 때 오류를 발생시킴
+```python
+assert ps_vs.shape[0] <= vs.shape[0] #False이면 AssertionError가 발생
+```
+
+# 07-5. 데이터 정규화하기
+* 정규화 : 중복과 불필요한 데이터를 없애 정보를 재구성하는 과정
+1. billboard 데이터셋으로 예제 수행
+```
+       year            artist                    track  time date.entered  \
+0      2000             2 Pac  Baby Don't Cry (Keep...  4:22   2000-02-26   
+1      2000           2Ge+her  The Hardest Part Of ...  3:15   2000-09-02   
+2      2000      3 Doors Down               Kryptonite  3:53   2000-04-08   
+3      2000      3 Doors Down                    Loser  4:24   2000-10-21   
+4      2000          504 Boyz            Wobble Wobble  3:35   2000-04-15   
+...     ...               ...                      ...   ...          ...   
+24087  2000       Yankee Grey     Another Nine Minutes  3:10   2000-04-29   
+24088  2000  Yearwood, Trisha          Real Live Woman  3:55   2000-04-01   
+24089  2000   Ying Yang Twins  Whistle While You Tw...  4:19   2000-03-18   
+24090  2000     Zombie Nation            Kernkraft 400  3:30   2000-09-02   
+24091  2000   matchbox twenty                     Bent  4:12   2000-04-29   
+
+       week  rating  
+0       wk1    87.0  
+1       wk1    91.0  
+2       wk1    81.0  
+3       wk1    76.0  
+4       wk1    57.0  
+...     ...     ...  
+24087  wk76     NaN  
+24088  wk76     NaN  
+24089  wk76     NaN  
+24090  wk76     NaN  
+24091  wk76     NaN  
+
+[24092 rows x 7 columns]
+```
+2. 'Loser'라는 특정 곡 데이터만 추출해 살펴보기
+```python
+print(billboard_long.loc[billboard_long.track == "Loser"])
+```
+📝 실행결과
+```
+       year        artist  track  time date.entered  week  rating
+3      2000  3 Doors Down  Loser  4:24   2000-10-21   wk1    76.0
+320    2000  3 Doors Down  Loser  4:24   2000-10-21   wk2    76.0
+637    2000  3 Doors Down  Loser  4:24   2000-10-21   wk3    72.0
+954    2000  3 Doors Down  Loser  4:24   2000-10-21   wk4    69.0
+1271   2000  3 Doors Down  Loser  4:24   2000-10-21   wk5    67.0
+...     ...           ...    ...   ...          ...   ...     ...
+22510  2000  3 Doors Down  Loser  4:24   2000-10-21  wk72     NaN
+22827  2000  3 Doors Down  Loser  4:24   2000-10-21  wk73     NaN
+23144  2000  3 Doors Down  Loser  4:24   2000-10-21  wk74     NaN
+23461  2000  3 Doors Down  Loser  4:24   2000-10-21  wk75     NaN
+23778  2000  3 Doors Down  Loser  4:24   2000-10-21  wk76     NaN
+
+[76 rows x 7 columns]
+```
+* 곡 정보만 별도의 데이터 표로 분리하기
+* 연도, 가수, 곡, 재생시간, 발표일이 중복되지 않을 수 있다
+* 새로운 데이터프레임으로 year열, artist열, track열, time열 date.entered 열로 옮기고 각 곡에 고유한 ID를 할당
+
+3. 새로운 데이터프레임으로 옮길 4개의 열 데이터를 추출, shape로 데이터의 크기 살펴보기
+```python
+billboard_songs = billboard_long[
+    ["year", "artist", "track", "time", "date.entered"]
+]
+print(billboard_songs.shape)
+```
+📝 실행결과
+```
+(24092, 5)
+```
+4. drop_duplicates() 메서드로 중복된 값을 제거하기
+```python
+billboard_songs = billboard_songs.drop_duplicates()
+print(billboard_songs.shape)
+```
+📝 실행결과
+```
+(317, 5)
+```
+5. 각 데이터 행에 고유한 값을 할당한다.
+```python
+billboard_songs['id'] = billboard_songs.index +1
+print(billboard_songs)
+```
+📝 실행결과
+```
+     year            artist                    track  time date.entered   id
+0    2000             2 Pac  Baby Don't Cry (Keep...  4:22   2000-02-26    1
+1    2000           2Ge+her  The Hardest Part Of ...  3:15   2000-09-02    2
+2    2000      3 Doors Down               Kryptonite  3:53   2000-04-08    3
+3    2000      3 Doors Down                    Loser  4:24   2000-10-21    4
+4    2000          504 Boyz            Wobble Wobble  3:35   2000-04-15    5
+..    ...               ...                      ...   ...          ...  ...
+312  2000       Yankee Grey     Another Nine Minutes  3:10   2000-04-29  313
+313  2000  Yearwood, Trisha          Real Live Woman  3:55   2000-04-01  314
+314  2000   Ying Yang Twins  Whistle While You Tw...  4:19   2000-03-18  315
+315  2000     Zombie Nation            Kernkraft 400  3:30   2000-09-02  316
+316  2000   matchbox twenty                     Bent  4:12   2000-04-29  317
+
+[317 rows x 6 columns
+```
+
+6. 데이터플레임의 id열을 사용하여 곡을 주별 순위 정보에 표시한다. merge()를 사용하여 곡 정보와 관련된 4개 열을 기준으로 두 데이터프레임을 병합하면 된다.
+```python
+billboard_ratings = billboard_long.merge(
+    billboard_songs, on = ["year", "artist", "track", "time", date.entered"]
+)
+print(billboard_ratings)
+```
+📝 실행결과
+```
+       year            artist                    track  time date.entered  \
+0      2000             2 Pac  Baby Don't Cry (Keep...  4:22   2000-02-26   
+1      2000           2Ge+her  The Hardest Part Of ...  3:15   2000-09-02   
+2      2000      3 Doors Down               Kryptonite  3:53   2000-04-08   
+3      2000      3 Doors Down                    Loser  4:24   2000-10-21   
+4      2000          504 Boyz            Wobble Wobble  3:35   2000-04-15   
+...     ...               ...                      ...   ...          ...   
+24087  2000       Yankee Grey     Another Nine Minutes  3:10   2000-04-29   
+24088  2000  Yearwood, Trisha          Real Live Woman  3:55   2000-04-01   
+24089  2000   Ying Yang Twins  Whistle While You Tw...  4:19   2000-03-18   
+24090  2000     Zombie Nation            Kernkraft 400  3:30   2000-09-02   
+24091  2000   matchbox twenty                     Bent  4:12   2000-04-29   
+
+       week  rating   id  
+0       wk1    87.0    1  
+1       wk1    91.0    2  
+2       wk1    81.0    3  
+3       wk1    76.0    4  
+4       wk1    57.0    5  
+...     ...     ...  ...  
+24087  wk76     NaN  313  
+24088  wk76     NaN  314  
+24089  wk76     NaN  315  
+24090  wk76     NaN  316  
+24091  wk76     NaN  317  
+
+[24092 rows x 8 columns]
+```
+
+7. 곡 정보와 관련된 열을 제외한 나머지 열만 추출하여 주별 순위 데이터프레임을 완성
+```python
+billboard_ratings = billboard_ratings[
+  ["id", "week", "rating']
+]
+print(billboard_ratings)
+```
+📝 실행결과
+```
+        id  week  rating
+0        1   wk1    87.0
+1        2   wk1    91.0
+2        3   wk1    81.0
+3        4   wk1    76.0
+4        5   wk1    57.0
+...    ...   ...     ...
+24087  313  wk76     NaN
+24088  314  wk76     NaN
+24089  315  wk76     NaN
+24090  316  wk76     NaN
+24091  317  wk76     NaN
+
+[24092 rows x 3 columns]
+```
