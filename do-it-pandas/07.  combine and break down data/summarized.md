@@ -488,7 +488,7 @@ billboard_data_files = (
 billboard_dfs = [pd.read_csv(data) for data in billboard_data_files]
 ```
 
-2. concat(을 호출하면 데이터를 연결할 수 있다.
+2. concat()을 호출하면 데이터를 연결할 수 있다.
 ```python
 billboard_concat_comp = pd.concat(billboard_dfs)
 print(billboard_concat_comp)
@@ -524,3 +524,238 @@ print(billboard_concat_comp)
 [24092 rows x 7 columns]
 ```
 
+# 07-4. 여러 데이터셋 병합하기
+* 2개 이상의 데이터프레임에서 공통된 데이터를 기준으로 연결하고 싶을 때, merge또는 join한다
+* join은 인덱스 기준으로 데이터프레임 객체를 병합하지만 merge() 메서드는 훨씬 더 명시적이고 유연한 병합이 가능하다.
+1. 관측 데이터셋
+```python
+print(person)
+print(site)
+print(visited)
+print(survey)
+```
+📝 실행결과
+```
+      ident   personal    family
+0      dyer    William      Dyer
+1        pb      Frank   Pabodie
+2      lake   Anderson      Lake
+3       roe  Valentina   Roerich
+4  danforth      Frank  Danforth
+
+    name    lat    long
+0   DR-1 -49.85 -128.57
+1   DR-3 -47.15 -126.72
+2  MSK-4 -48.87 -123.40
+
+    taken person quant  reading
+0     619   dyer   rad     9.82
+1     619   dyer   sal     0.13
+2     622   dyer   rad     7.80
+3     622   dyer   sal     0.09
+4     734     pb   rad     8.41
+5     734   lake   sal     0.05
+6     734     pb  temp   -21.50
+7     735     pb   rad     7.22
+8     735    NaN   sal     0.06
+9     735    NaN  temp   -26.00
+10    751     pb   rad     4.35
+11    751     pb  temp   -18.50
+12    751   lake   sal     0.10
+13    752   lake   rad     2.19
+14    752   lake   sal     0.09
+15    752   lake  temp   -16.00
+16    752    roe   sal    41.60
+17    837   lake   rad     1.46
+18    837   lake   sal     0.21
+19    837    roe   sal    22.50
+20    844    roe   rad    11.25
+```
+* 데이터셋은 각 부분이 관측 단위인 여러개로 분할되었다.
+* 만약 해당 위치의 위도,경도 정보와 함께 날짜를 확인하고 싶으면 여러 데이터프레임을 결합해야한다.
+
+2. 판다스의 merge()메서드로 이 작업을 수행할 수 있다.
+* left.merge(right)와 같이 호출한 데이터프레임은 왼쪽에 있는 데이터프레임이 되고, 첫번째 매개변수는 오른쪽에 있는 데이터프레임을 나타낸다
+
+3. **매개변수 how**는 최종결합된 결과의 형태를 결정한다
+* left : 왼쪽 테이블의 모든 키를 유지한다
+* right : 오른쪽 테이블의 모든 키를 유지한다
+* outer : 왼쪽과 오른쪽 테이블의 모든 키를 유지한다
+* inner : 왼쪽과 오른쪽 테이블의 공통 키를 유지한다.
+
+4. 매개변수 on은 병합 기준이 되는 열을 지정
+* 왼쪽과 오른쪽 데이터프레임의 열 이름이 서로 다르다면 on 대신 매개변수 left_on과 right_on을 사용한다.
+
+### 일대일 병합하기
+1. 데이터프레임의 site 열에 중복값이 없도록 일부 데이터만 뗴어 실습
+```python
+visited_subset = visited.loc[[0,2,6], :]
+print(visited_subset)
+```
+📝 실행결과
+```
+   ident   site       dated
+0    619   DR-1  1927-02-08
+2    734   DR-3  1939-01-07
+6    837  MSK-4  1932-01-14
+```
+2. merge()메서드의 매개변수 how의 기본 값은 'inner'이므로 내부 조인을 실행, 데이터프레임 site를 왼쪽으로 인수로 전달한 visited_subset을 오른쪽으로 전달
+```python
+o2o_merge = site.merge(visited_subset, left_on = "name", right_on = "site")
+print(o2o_merge)
+```
+📝 실행결과
+```
+    name    lat    long  ident   site       dated
+0   DR-1 -49.85 -128.57    619   DR-1  1927-02-08
+1   DR-3 -47.15 -126.72    734   DR-3  1939-01-07
+2  MSK-4 -48.87 -123.40    837  MSK-4  1932-01-14
+```
+
+### 다대일 병합하기
+* visited 데이터프레임 일부가 아닌 전체를 대상으로 병합
+* 왼쪽 데이터프레임에 중복된 site 값이 있으므로 다대일 병합이 발생
+* 다대일 병합에서는 한쪽 데이터프레임의 키를 여러번 사용
+1. visited의 site 열에 있는 중복값 개수 살펴보기
+``` python
+print(visited["site"].value_counts())
+```
+📝 실행결과
+```
+site
+DR-3     4
+DR-1     3
+MSK-4    1
+Name: count, dtype: int64
+```
+
+2. site 열에 중복값이 있는 visited 데이터프레임과 병합할 때 값을 여러번 반복한다.
+```python
+m2o_merge = site.merge(visited, left_on = 'name', right_on = 'site')
+print(m2o_merge)
+```
+📝 실행결과
+```
+    name    lat    long  ident   site       dated
+0   DR-1 -49.85 -128.57    619   DR-1  1927-02-08
+1   DR-1 -49.85 -128.57    622   DR-1  1927-02-10
+2   DR-1 -49.85 -128.57    844   DR-1  1932-03-22
+3   DR-3 -47.15 -126.72    734   DR-3  1939-01-07
+4   DR-3 -47.15 -126.72    735   DR-3  1930-01-12
+5   DR-3 -47.15 -126.72    751   DR-3  1930-02-26
+6   DR-3 -47.15 -126.72    752   DR-3         NaN
+7  MSK-4 -48.87 -123.40    837  MSK-4  1932-01-14
+```
+
+### 다대다 병합하기
+1. persocn의 ident열과 survey의 person 열의 값을 기준으로 두 데이터프레임을 병합하고, visited의 ident 열과 survey의 taken 열의 값을 기준으로 두 데이터프레임을 병합
+```python
+ps = person.merge(survey, left_on = 'ident', right_on = 'person')
+vs = visited.merge(survey, left_on='ident', right_on = 'taken')
+print(ps)
+print(vs)
+```
+📝 실행결과
+```
+  ident   personal   family  taken person quant  reading
+0   dyer    William     Dyer    619   dyer   rad     9.82
+1   dyer    William     Dyer    619   dyer   sal     0.13
+2   dyer    William     Dyer    622   dyer   rad     7.80
+3   dyer    William     Dyer    622   dyer   sal     0.09
+4     pb      Frank  Pabodie    734     pb   rad     8.41
+5     pb      Frank  Pabodie    734     pb  temp   -21.50
+6     pb      Frank  Pabodie    735     pb   rad     7.22
+7     pb      Frank  Pabodie    751     pb   rad     4.35
+8     pb      Frank  Pabodie    751     pb  temp   -18.50
+9   lake   Anderson     Lake    734   lake   sal     0.05
+10  lake   Anderson     Lake    751   lake   sal     0.10
+11  lake   Anderson     Lake    752   lake   rad     2.19
+12  lake   Anderson     Lake    752   lake   sal     0.09
+13  lake   Anderson     Lake    752   lake  temp   -16.00
+14  lake   Anderson     Lake    837   lake   rad     1.46
+15  lake   Anderson     Lake    837   lake   sal     0.21
+16   roe  Valentina  Roerich    752    roe   sal    41.60
+17   roe  Valentina  Roerich    837    roe   sal    22.50
+18   roe  Valentina  Roerich    844    roe   rad    11.25
+
+    ident   site       dated  taken person quant  reading
+0     619   DR-1  1927-02-08    619   dyer   rad     9.82
+1     619   DR-1  1927-02-08    619   dyer   sal     0.13
+2     622   DR-1  1927-02-10    622   dyer   rad     7.80
+3     622   DR-1  1927-02-10    622   dyer   sal     0.09
+4     734   DR-3  1939-01-07    734     pb   rad     8.41
+5     734   DR-3  1939-01-07    734   lake   sal     0.05
+6     734   DR-3  1939-01-07    734     pb  temp   -21.50
+7     735   DR-3  1930-01-12    735     pb   rad     7.22
+8     735   DR-3  1930-01-12    735    NaN   sal     0.06
+9     735   DR-3  1930-01-12    735    NaN  temp   -26.00
+10    751   DR-3  1930-02-26    751     pb   rad     4.35
+11    751   DR-3  1930-02-26    751     pb  temp   -18.50
+12    751   DR-3  1930-02-26    751   lake   sal     0.10
+13    752   DR-3         NaN    752   lake   rad     2.19
+14    752   DR-3         NaN    752   lake   sal     0.09
+15    752   DR-3         NaN    752   lake  temp   -16.00
+16    752   DR-3         NaN    752    roe   sal    41.60
+17    837  MSK-4  1932-01-14    837   lake   rad     1.46
+18    837  MSK-4  1932-01-14    837   lake   sal     0.21
+19    837  MSK-4  1932-01-14    837    roe   sal    22.50
+20    844   DR-1  1932-03-22    844    roe   rad    11.25
+```
+
+2. ps를 왼쪽 데이터프레임, vs를 오른쪽 데이터프레임으로 하여 quant 열을 기준으로 병합한다면 양쪽 데이터프레임 모두 quant 열에 중복값이 있으므로 다대다 병합이 일어난다.
+* 각 데이터프레임의 quant 열에 중복값이 얼마나 있는지 알아보기
+```python
+print(ps["quant"].value_counts())
+print(vs["quant"].value_counts())
+```
+📝 실행결과
+```
+2. ps를 왼쪽 데이터프레임, vs를 오른쪽 데이터프레임으로 하여 quant 열을 기준으로 병합한다면?, 양쪽 데이터프레임 모두 quant 열에 중복값이 있으므로 다대다 병합이 일어난다.
+* 각 데이터프레임의 quant 열에 중복값이 얼마나 있는지 살펴보기
+```python
+print(ps["quant"].value_counts())
+print(vs["quant"].value_counts())
+```
+📝실행결과
+```
+quant
+rad     8
+sal     8
+temp    3
+Name: count, dtype: int64
+quant
+sal     9
+rad     8
+temp    4
+Name: count, dtype: int64
+```
+
+3. 다대다 병합을 수행
+```python
+ps_vs = ps.merge(
+    vs,
+    left_on = ["quant"],
+    right_on = ["quant"],
+)
+
+print(ps_vs.loc[0,:])
+```
+📝 실행결과
+```
+ident_x            dyer
+personal        William
+family             Dyer
+taken_x             619
+person_x           dyer
+quant               rad
+reading_x          9.82
+ident_y             619
+site               DR-1
+dated        1927-02-08
+taken_y             619
+person_y           dyer
+reading_y          9.82
+Name: 0, dtype: object
+```
+* 판다스는 병합된 데이터에 중복된 열 이름이 생기면 자동으로 접미사를 추가한다. _x, _y와 같이 추가됨
+* 일반적으로 실무에서는 다대다 병합은 하지 않으려고 한다. 모든 키의 곱집합만큼 병합이 일어나기 때문
