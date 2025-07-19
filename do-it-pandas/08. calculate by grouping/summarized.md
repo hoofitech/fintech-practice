@@ -573,3 +573,197 @@ sex
 Male         20.02  2.875714  2.571429
 Female       13.62  2.506667  2.000000
 ```
+### 그룹 추출하고 순회하기
+1. get_group() 메서드를 사용하여 원하는 그룹을 추출할 수 있다. sex를 기준으로 그룹화한 데이터에서 Female인 값만 추출
+```python
+female = grouped.get_group('Female')
+print(female)
+```
+📝 실행결과
+```
+     total_bill   tip     sex smoker   day    time  size
+198       13.00  2.00  Female    Yes  Thur   Lunch     2
+124       12.48  2.52  Female     No  Thur   Lunch     2
+101       15.38  3.00  Female    Yes   Fri  Dinner     2
+```
+2. groupby 객체를 저장하면 그룹을 하나씩 순회할 수 있다. for문으로 순회.
+```python
+for sex_group in grouped:
+          print(sex_group)
+```
+📝 실행결과
+```
+('Male',      total_bill   tip   sex smoker   day    time  size
+24        19.82  3.18  Male     No   Sat  Dinner     2
+6          8.77  2.00  Male     No   Sun  Dinner     2
+153       24.55  2.00  Male     No   Sun  Dinner     4
+211       25.89  5.16  Male    Yes   Sat  Dinner     4
+176       17.89  2.00  Male    Yes   Sun  Dinner     2
+192       28.44  2.56  Male    Yes  Thur   Lunch     2
+9         14.78  3.23  Male     No   Sun  Dinner     2)
+('Female',      total_bill   tip     sex smoker   day    time  size
+198       13.00  2.00  Female    Yes  Thur   Lunch     2
+124       12.48  2.52  Female     No  Thur   Lunch     2
+101       15.38  3.00  Female    Yes   Fri  Dinner     2)
+```
+
+3. grouped 객체의 첫 번째 인덱스를 추출하려고 인덱싱을 사용하면 오류가 발생한다. grouped는 컨테이너가 아닌 DataFrameGroupBy 객체이기 때문이다.
+```python
+print(grouped[0])
+```
+📝 실행결과
+```
+KeyError: 'Column not found: 0'
+```
+
+### 여러 개의 변수로 그룹화하고 결과 평탄화하기
+1. sex, time 별로 tips 데이터의 평균을 구하고 싶다면 groupby() 메서드에 ['sex', time']을 전달
+```python
+bill_sex_time = tips_10.groupby(['sex', 'time'])
+
+group_avg = bill_sex_time.mean(numeric_only = True)
+```
+
+2. sex와 time으로 그룹화한 group_avg의 자료형은 데이터프레임이다.
+```python
+print(group_avg)
+```
+📝 실행결과
+```
+               total_bill       tip      size
+sex    time                                  
+Male   Lunch    28.440000  2.560000  2.000000
+       Dinner   18.616667  2.928333  2.666667
+Female Lunch    12.740000  2.260000  2.000000
+       Dinner   15.380000  3.000000  2.000000
+```
+
+3. 데이터프레임처럼 평탄화하기
+```python
+group_method = tips_10.groupby(['sex', 'time']).mean(numeric_only = True).reset_index() #reset_index()로 데이터를 평탄화한다
+print(grouped_method)
+```
+📝 실행결과
+```
+      sex    time  total_bill       tip      size
+0    Male   Lunch   28.440000  2.560000  2.000000
+1    Male  Dinner   18.616667  2.928333  2.666667
+2  Female   Lunch   12.740000  2.260000  2.000000
+3  Female  Dinner   15.380000  3.000000  2.000000
+```
+* groupby() 메서드에 매개변수 as_index = False를 지정하면 결과 데이터프레임을 평탄화한다.
+
+# 08-5. 다중 인덱스 다루기
+1. intv_df 데이터셋 불러오기
+```
+         ig_type  intervened        pid  rep  sid        tr
+0              3          40  294524448    1  201  0.000135
+1              3          40  294571037    1  201  0.000135
+2              3          40  290699504    1  201  0.000135
+3              3          40  288354895    1  201  0.000135
+4              3          40  292271290    1  201  0.000135
+...          ...         ...        ...  ...  ...       ...
+9434648        2          87  345636694    2  201  0.000166
+9434649        3          87  295125214    2  201  0.000166
+9434650        2          89  292571119    2  201  0.000166
+9434651        3          89  292528142    2  201  0.000166
+9434652        2          95  291956763    2  201  0.000166
+
+[9434653 rows x 6 columns
+```
+2. 각 반복 실험(rep), 개입시간(intervened), 전염성 수치(tr)의 개입 횟수를 계산. 개입 횟수는 ig_type으로 구한다.
+```python
+count_only = (
+          intv_df
+          .groupby(["rep", "intervened", "tr"])
+          .["ig_type"]
+          .count()
+)
+
+print(count_only)
+```
+📝 실행결과
+```
+rep  intervened  tr      
+0    8           0.000166    1
+     9           0.000152    3
+                 0.000166    1
+     10          0.000152    1
+                 0.000166    1
+                            ..
+2    193         0.000135    1
+                 0.000152    1
+     195         0.000135    1
+     198         0.000166    1
+     199         0.000135    1
+Name: ig_type, Length: 1196, dtype: int64
+```
+3. groupby() 메서드를 이용하여 평균 구하기. 그 전에 결과 유형과 인덱스 살펴보기
+```python
+print(type(count_only))
+print(count_only.index)
+```
+📝 실행결과
+```
+<class 'pandas.core.series.Series'>
+MultiIndex([(0,   8, 0.000166),
+            (0,   9, 0.000152),
+            (0,   9, 0.000166),
+            (0,  10, 0.000152),
+            (0,  10, 0.000166),
+            (0,  12, 0.000152),
+            (0,  12, 0.000166),
+            (0,  13, 0.000152),
+            (0,  13, 0.000166),
+            (0,  14, 0.000152),
+            ...
+            (2, 187, 0.000152),
+            (2, 187, 0.000166),
+            (2, 189, 0.000135),
+            (2, 189, 0.000152),
+            (2, 190, 0.000166),
+            (2, 193, 0.000135),
+            (2, 193, 0.000152),
+            (2, 195, 0.000135),
+            (2, 198, 0.000166),
+            (2, 199, 0.000135)],
+           names=['rep', 'intervened', 'tr'], length=1196)
+```
+* MultiIndex로 구성된 시리즈이다.
+
+4. 다중 인덱스 수준을 참조할 수 있도록 매개변수 level을 전달. 각각 첫번째, 두번째, 세번째 인덱스 수준을 뜻하는  [0,1,2]를 전달한다.
+```python
+count_mean = count_only.groupby(level = [0,1,2]).mean() #데이터
+print(count_mean.head())
+```
+📝 실행결과
+```
+rep  intervened  tr      
+0    8           0.000166    1.0
+     9           0.000152    3.0
+                 0.000166    1.0
+     10          0.000152    1.0
+                 0.000166    1.0
+Name: ig_type, dtype: float64
+```
+
+5. 결과를 시각화하기
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+fig = sns.lmplot(
+          data = count_mean.reset_index(),
+          x="intervened"
+          y="ig_type"
+          hue = "rep"
+          col = "tr"
+          fit_reg = False
+          palette = "viridis"
+)
+
+plt.show()
+```
+📊 count_mean_lmplot 시각화
+![count_mean_lmplot](Vizualizations/count_mean_lmplot.png)
+
