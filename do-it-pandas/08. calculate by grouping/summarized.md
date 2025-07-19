@@ -765,5 +765,5 @@ fig = sns.lmplot(
 plt.show()
 ```
 📊 count_mean_lmplot 시각화
-![count_mean_lmplot](Vizualizations/count_mean_lmplot.png)
+![count_mean_lmplot](count_mean_lmplot.png)
 
