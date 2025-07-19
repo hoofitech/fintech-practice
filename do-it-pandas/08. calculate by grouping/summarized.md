@@ -314,3 +314,262 @@ print(gdf)
 10  2002    142  65.694923  12.279823
 11  2007    142  67.007423  12.073021
 ```
+# 08-2. 데이터 변환하기
+## 표준점수 계산하기
+### 표준점수 계산하는 함수 만들기
+1. 표준점수를 계산하는 사용자 함수를 만든다.
+   * 표준점수 z = (x(하나의 데이터값) - μ(데이터셋의 평균))/σ(표준편차)
+```python
+def my_zscore(x):
+          return ((x - x.mean)) / x.std())
+```
+2. transform() 메서드를 사용하여 my_zscore() 함수로 year열의 lifeExp 변환
+* transform() 메서드는 요소별로 변환할 때 사용하므로 데이터양은 줄지 않습니다.
+```python
+transform_z = df.groupby('year')["lifeExp"].transform(my_zscore)
+print(transform_z)
+```
+📝 실행결과
+```
+0      -1.656854
+1      -1.731249
+2      -1.786543
+3      -1.848157
+4      -1.894173
+          ...   
+1699   -0.081621
+1700   -0.336974
+1701   -1.574962
+1702   -2.093346
+1703   -1.948180
+Name: lifeExp, Length: 1704, dtype: float64
+```
+3. 원본 데이터프레임 df 크기와 데이터프레임 transform_z의 크기 비교
+```python
+print(df.shape)
+print(transform_z.shape)
+```
+📝 실행결과
+```
+(1704, 6)
+(1704,)
+```
+
+4. spicy 라이브러리의 zscore()함수가 존재한다
+```python
+!pip install spicy
+
+from spicy.stats import zscore
+sp_z_grouped = df.groupby('year')["lifeExp"].transform(zscore)
+sp_z_nogroup = zscore(df["lifeExp"]) #ndarray 객체이다
+sp_z_nogroup = pd.Series(sp_z_nogroup) #Series 객체로 변환
+
+print(transform_z.head())
+print(sp_z_grouped.head())
+print(sp_z_nogroup.head())
+```
+📝 실행결과
+```
+0   -1.656854
+1   -1.731249
+2   -1.786543
+3   -1.848157
+4   -1.894173
+
+0   -1.662719
+1   -1.737377
+2   -1.792867
+3   -1.854699
+4   -1.900878
+
+0  -2.375334
+1  -2.256774
+2  -2.127837
+3  -1.971178
+4  -1.811033
+```
+* transform_z와 sp_z_grouped의 값이 다른 이유: 표준편차 계산 시 zscore()는 표본수 n으로 구하지만 판다스의 std()는 n-1로 나눈 비편향 표준편차를 사용하기 때문
+* 비편향 표준편차: 모집단 전체를 알 수 없고 표본만 가진 경우, 표본의 분산이 모집단의 분산보다 작게 추정되는 경향이 있는데 이를 보정하기 위해 분산 계산시 n-1로 나눈다
+
+## 평균값으로 결측값 채우기
+### 평균값으로 결측값 채우기
+1. seaborn과 numpy 라이브러리를 불러오고 tips에서 10개 행을 추출. sample()을 사용하면 무작위로 데이터를 추출하지만 np.random.seed()를 설정하면 실행할 때마다 같은 결과를 얻음
+```python
+import seaborn as sns
+import numpy as np
+
+np.random.seed(42)
+tips_10 = sns.load_dataset("tips").sample(10)
+```
+
+2. 추출한 10개 행 중에서 4개의 total_bill 값을 결측값으로 변경
+```python
+tips_10.loc[
+          np.random.permutation(tips_10.index)[:4],
+          "total bill"
+] =np.nan
+
+print(tips_10)
+```
+📝 실행결과
+```
+     total_bill   tip     sex smoker   day    time  size
+24        19.82  3.18    Male     No   Sat  Dinner     2
+6          8.77  2.00    Male     No   Sun  Dinner     2
+153         NaN  2.00    Male     No   Sun  Dinner     4
+211         NaN  5.16    Male    Yes   Sat  Dinner     4
+198         NaN  2.00  Female    Yes  Thur   Lunch     2
+176         NaN  2.00    Male    Yes   Sun  Dinner     2
+192       28.44  2.56    Male    Yes  Thur   Lunch     2
+124       12.48  2.52  Female     No  Thur   Lunch     2
+9         14.78  3.23    Male     No   Sun  Dinner     2
+101       15.38  3.00  Female    Yes   Fri  Dinner     2
+```
+3. 성별에 따른 지출 습관을 고려하여 결측값 채우기. groupby() 메서드로 결측값을 채울 통곗값을 구한다. sex열의 각 값에서 결측값이 아닌 값의 개수를 확인
+```python
+count_sex = tips_10.groupby('sex').count() #count() Series와 DataFrame 모두 가능하다.
+print(count_sex)
+```
+📝 실행결과
+```
+        total_bill  tip  smoker  day  time  size
+sex                                             
+Male             4    7       7    7     7     7
+Female           2    3       3    3     3     3
+```
+4. 그룹화된 평균을 계산하고 이 값으로 결측값 채우기. 결측값은 fillna() 메서드를 사용하려 원하는 값으로 채울 수 있다.
+```python
+def fill_na_mean(x):
+          avg = x.mean()
+          return x.fillna(avg)
+
+total_bill_group_mean = (
+          tips_10
+          .groupby("sex")
+          .total_bill #["total_bill"]과 동일하지만 더 간결하기 때문에 사용
+          .transform(fill_na_mean)
+)
+```
+5. total_bill 열에 성별에 따라 다른 값을 채움
+```python
+print(total_bill_group_mean)
+```
+📝 실행결과
+```
+24     19.8200
+6       8.7700
+153    17.9525
+211    17.9525
+198    13.9300
+176    17.9525
+192    28.4400
+124    12.4800
+9      14.7800
+101    15.3800
+Name: total_bill, dtype: float64
+```
+
+# 08-3. 원하는 데이터 걸러 내기
+1. tips 데이터셋을 불러와 데이터 크기를 확인
+```python
+tips = sns.load_dataset('tips')
+print(tips.shape)
+```
+📝 실행결과
+```
+(244, 7)
+```
+
+2. size 열의 각 값의 빈도수
+```python
+print(tips['size'].value_counts()) #Series만 가능하다
+```
+📝 실행결과
+```
+size
+2    156
+3     38
+4     37
+5      5
+1      4
+6      4
+Name: count, dtype: int64
+```
+
+3. filtter() 메서드로 관측값이 30개 이상인 데이터만 필터링
+```python
+tips_filtered = (
+          tips
+          .groupby("size")
+          .filter(lambda x: x["size"].count() >=30)
+)
+print(tips_filtered.shape) #13개 데이터 제외된 것을 확인
+print(tips_filtered['size'].value_counts()) #1, 5, 6명 데이터 제외된 것을 확인
+```
+📝 실행결과
+```
+(231, 7)
+
+size
+2    156
+3     38
+4     37
+Name: count, dtype: int64
+```
+
+# 08-4. 그룹객체 활용하기 
+## 그룹 객체란?
+1. groupby()의 결과를 따로 저장하여 메서드가 무엇반환하는지 살펴보기. tips 데이터셋의 무작위 10개 행을 sample() 함수로 불러오기
+```python
+tips_10 = sns.load_dataset('tips').sample(10, random_state = 42) # 매개변수를 지정하여 지정한 크기만큼 추출, random_state로 같은 결과를 반복적을 얻을 수 있음.
+print(tips_10)
+```
+📝 실행결과
+```
+     total_bill   tip     sex smoker   day    time  size
+24        19.82  3.18    Male     No   Sat  Dinner     2
+6          8.77  2.00    Male     No   Sun  Dinner     2
+153       24.55  2.00    Male     No   Sun  Dinner     4
+211       25.89  5.16    Male    Yes   Sat  Dinner     4
+198       13.00  2.00  Female    Yes  Thur   Lunch     2
+176       17.89  2.00    Male    Yes   Sun  Dinner     2
+192       28.44  2.56    Male    Yes  Thur   Lunch     2
+124       12.48  2.52  Female     No  Thur   Lunch     2
+9         14.78  3.23    Male     No   Sun  Dinner     2
+101       15.38  3.00  Female    Yes   Fri  Dinner     2
+```
+
+2. groupby()메서드만 호출한 결과를 저장
+```python
+grouped = tips_10.groupby('sex')
+print(grouped)
+```
+📝실행결과
+```
+<pandas.core.groupby.generic.DataFrameGroupBy object at 0x7de897bdf0d0>
+```
+
+3. groups 속성을 사용하여 각 그룹이 속한 데이터프레임의 인덱스를 확인한다
+```python
+print(grouped.groups)
+```
+📝 실행결과
+```
+{'Male': [24, 6, 153, 211, 176, 192, 9], 'Female': [198, 124, 101]}
+```
+* groups 속성은 행 번호를 나타내는 인덱스를 반환한다.
+* 전체 데이터를 사용하지 않고 인덱스만 사용하는 이유는 성능을 최적화하기 위함.
+
+### 그룹 객체로 여러 열에 집계 함수 적용하기
+1. 특정 열을 지정하지 않고, groupby() 뒤에 바로 계산을 수행하면 해당 계산을 적용할 수 있는 열만 계산하고 나머지는 건너뛴다.
+```python
+avgs = grouped.mean(numeric_only = True) # 숫자인 열만 평균을 구함
+print(avgs)
+```
+📝 실행결과
+```
+        total_bill       tip      size
+sex                                   
+Male         20.02  2.875714  2.571429
+Female       13.62  2.506667  2.000000
+```
