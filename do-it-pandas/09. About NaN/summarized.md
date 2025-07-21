@@ -605,3 +605,74 @@ print(ebola.Cases_Guinea.sum(skipna = True)
 84729.0
 nan
 ```
+
+09-4 판다스 내장 NA 결측값 살펴보기
+* 내장 NA값인 pd.NA가 추가되었다.
+1. scientist 데이터프레임을 만들고 dtypes로 데이터형 살펴보기
+```
+scientists
+                Name    Occupation        Born        Died  Age
+0  Rodaline Franklin       Chemist  1920-07-25  1958-04-16   37
+1     William Gosset  Statistician  1876-06-13  1937-10-16   61
+
+Name          object
+Occupation    object
+Born          object
+Died          object
+Age            int64
+dtype: object
+```
+
+2. 데이터형이 int64인 Age와 object인 Name 열의 1번 행을 pd.NA로 변경
+```python
+scientits.loc[1,"Name"] = pd.NA
+scientists.loc[1,"Age"] = pd.NA
+print(scientists)
+```
+📝 실행결과
+```
+                Name    Occupation        Born        Died   Age
+0  Rodaline Franklin       Chemist  1920-07-25  1958-04-16  37.0
+1               <NA>  Statistician  1876-06-13  1937-10-16   NaN
+```
+
+3. Age의 데이터형이 float64로 변경되었다.
+```python
+print(scientists.dtypes)
+```
+📝 실행결과
+```
+Name           object
+Occupation     object
+Born           object
+Died           object
+Age           float64
+dtype: object
+```
+4. 넘파이의 np.NaN으로 설정해도 똑같이 float64형으로 바뀐다.
+```python
+scientists = pd.DataFrame(
+    {
+        "Name" : ["Rodaline Franklin", "William Gosset"],
+        "Occupation" : ["Chemist", "Statistician"],
+        "Born" : ["1920-07-25", "1876-06-13"],
+        "Died" : ["1958-04-16", "1937-10-16"],
+        "Age" : [37, 61]
+    }
+)
+
+scientists.loc[1, "Name"] = np.nan
+scientists.loc[1, "Age"] = np.nan
+
+print(scientists.dtype)
+```
+📝 실행결과
+```
+Name           object
+Occupation     object
+Born           object
+Died           object
+Age           float64
+dtype: object
+```
+
