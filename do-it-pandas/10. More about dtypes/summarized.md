@@ -251,3 +251,8 @@ None
 | 9  | `.cat.set_categories(new_categories)`    | 카테고리 목록을 새로운 것으로 완전히 설정 |
 | 10 | `.cat.as_ordered()`                      | 범주형을 순서형으로 변환           |
 | 11 | `.cat.as_unordered()`                    | 순서형 범주를 비순서형으로 변환       |
+
+⭐ 핵심 포인트
+* astype()에 매개변수를 전달하여 데이터의 자료형을 바꿀 수 있다.
+* to_numeric()함수로 숫자형으로 바꿀 수 있다. 매개변수로 raise, coerce, ignore가 있다
+* 범주형 데이터를 사용하면 메모리가 효율적이다.
