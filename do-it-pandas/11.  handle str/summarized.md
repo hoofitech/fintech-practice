@@ -190,3 +190,156 @@ print(m)
 <re.Match object; span=(0, 14), match='(123) 456-7890'>
 ```
 
+### 알기 쉬운 정규식 만들기
+1. 파이썬에서는 긴 문자열을 여러 줄로 나누어 표현할 수 있는 기능을 제공. 이를 통해 복잡한 정규식을 보기 쉽게 정리할 수 있다.
+```python
+p = (
+    '\+?'
+    '1'
+    '\s?'
+    '\(?'
+    '\d{3}'
+    '\)?'
+    '\s?'
+    '\d{3}'
+    '\s?'
+    '-?'
+    '\d{4}'
+)
+print(p)
+```
+📝 실행결과
+```
+\+?1\s?\(?\d{3}\)?\s?\d{3}\s?-?\d{4}
+```
+
+2. 정의한 패턴 문자열 p를 match() 함수에 전달.
+```python
+cnty_tele_num_space_paren_dash = '+1 (123) 456-7890'
+m = re.match(pattern = p, strings = cnty_tel_num_space_paren_dash)
+print(m)
+```
+📝 실행결과
+```
+<re.Match object; span=(0, 17), match='+1 (123) 456-7890'>
+```
+
+### 패턴과 일치하는 모든 문자열 찾기
+1. 여러 중에 걸친 긴 문자열을 하나 선언
+```python
+s = (
+    "14 Ncuti Gatwa,"
+    "13 Jodie Whittaker, war John Hurt, 12 Peter Capaldi,"
+    "11 Matt Smith, 10 David Tennant, 9 Christopher Eccleston"
+)
+print(s)
+```
+📝 실행결과
+```
+14 Ncuti Gatwa,13 Jodie Whittaker, war John Hurt, 12 Peter Capaldi,11 Matt Smith, 10 David Tennant, 9 Christopher Eccleston
+```
+2. \d와 + 기호를 사용한 패턴으로 findall()을 호출하여 문자열에서 숫자가 1개 이상 연속된 모든 부분을 찾기
+```python
+p = "\d+"
+m = re.findall(pattern = p, string =s)
+print(m)
+```
+📝 실행결과
+```
+['14', '13', '12', '11', '10', '9']
+```
+### 패턴과 일치하는 문자열 대체하기
+1. 정규식을 사용하여 문자열에 있는 모든 인물 정보를 제거
+```python
+multi_str = """Guard: What? Ridden on a horse?
+King Arthur: Yes!
+Guard: You're using coconuts!
+King Arthur: What?
+Guard: You've got ... coconut[s] and you're bangin' 'em togther.
+"""
+p = '\w+\s?\w+:\s?'
+s = re.sub(pattern=p, string=multi_str, repl='') # pattern이 p일 경우에 ''으로 바꾸기
+print(s)
+```
+📝 실행결과
+```
+What? Ridden on a horse?
+Yes!
+You're using coconuts!
+What?
+You've got ... coconut[s] and you're bangin' 'em togther.
+```
+
+2. 슬라이싱 구문을 활용하여 Guard와 King Arthur가 한 말을 각각 추출
+```python
+guard = s.splitlines()[::2]
+kinga = s.splitlines()[1::2]
+print(guard)
+print(kinga)
+```
+📝 실행결과
+```
+['What? Ridden on a horse?', "You're using coconuts!", "You've got ... coconut[s] and you're bangin' 'em togther."]
+['Yes!', 'What?']
+```
+
+## complie() 함수
+* 패턴을 반복해서 사용하는 경우에 compile() 함수로 패턴을 재사용할 수 있는 기능
+1. match() 함수부터 적용
+```python
+p = re.complie('\d{10}')
+s = '1234567890'
+m = p.match(s)
+print(m)
+```
+📝 실행결과
+```
+<re.Match object; span=(0, 10), match='1234567890'>
+```
+
+2. findall() 함수
+```python
+p = re.compile('\d+')
+s = (
+    "14 Ncuti Gatwa, "
+    "13 Jodie Whittaker, war John Hurt, 12 Peter Capaldi,"
+    "11 Matt Smith, 10 David Tennant, 9 Christopher Eccleston"
+)
+m = p.findall(s)
+print(m)
+```
+📝 실행결과
+```
+['14', '13', '12', '11', '10', '9']
+```
+
+3. 찾은 문자열을 원하는 문자열로 바꾸는 sub() 함수
+```python
+p = re.complie('\w+\s?\w+:\s?')
+s = "Guard: You're using coconuts!"
+m = p.sub(string = s, repl='')
+print(m)
+```
+
+# 11-6. regex 라이브러리 활용하기
+# regex 라이브러리는 좀 더 심화된 정규식 기능을 활용한다.
+```
+import regex
+
+p = regex.compile('\d+')
+s = (
+    "14 Ncuti Gatwa, "
+    "13 Jodie Whittaker, war John Hurt, 12 Peter Capaldi,"
+    "11 Matt Smith, 10 David Tennant, 9 Christopher Eccleston"
+)
+m = p.findall(s)
+print(m)
+```
+📝 실행결과
+```
+['14', '13', '12', '11', '10', '9']
+```
+
+⭐ 핵심 포인트
+* f-문자열 포매팅은 숫자 뒤에 :를 붙이고 ,나 .n, .4%와 같이 사용할 수 있다
+* 정규식이란 패턴을 설정하고 그에 맞는 문자열을 찾는데 용이한 기능이다
