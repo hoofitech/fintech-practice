@@ -403,3 +403,142 @@ print(banks.head())
 3  35495                    Cache Valley Bank     3-Mar-17    18-May-17  
 4  19328                  State Bank of Texas    27-Jan-17    18-May-17
 ```
+
+2. read_csv()의 매개변수 parse_dates에 날짜 정보가 담긴 Closing Date, Updated Date 열을 전달하여 두 열을 datetime형으로 불러올 수 있다.
+```python
+banks = pd.read_csv(
+         'banklist.csv', pasrse_dates=["Closing Date", "Updated Date"]
+)
+print(banks.info())
+```
+📝 실행결과
+```
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 553 entries, 0 to 552
+Data columns (total 7 columns):
+ #   Column                 Non-Null Count  Dtype         
+---  ------                 --------------  -----         
+ 0   Bank Name              553 non-null    object        
+ 1   City                   553 non-null    object        
+ 2   ST                     553 non-null    object        
+ 3   CERT                   553 non-null    int64         
+ 4   Acquiring Institution  553 non-null    object        
+ 5   Closing Date           553 non-null    datetime64[ns] #datetime 형이 된다
+ 6   Updated Date           553 non-null    datetime64[ns]
+dtypes: datetime64[ns](2), int64(1), object(4)
+memory usage: 30.4+ KB
+None
+```
+3. 은행이 파산한 분기와 연도를 기반으로 데이터 분석
+```python
+banks = banks.assign(
+         closing_quarter=banks['Closing Date'].dt.quarter,
+         closing_year= banks['Closing Date'].dt.year
+)
+```
+
+4. 파산한 연도를 나타내는 closing_year 열을 기준으로 그룹화하고 연도별 파산한 은행 개수를 size()로 계산한 시리즈를 closing_year 변수에 저장
+```python
+closing_year = banks.groupby(['clsoing_year']).size()
+print(closing_year)
+```
+📝 실행결과
+```
+closing_year
+2000      2
+2001      4
+2002     11
+2003      3
+2004      4
+2007      3
+2008     25
+2009    140
+2010    157
+2011     92
+2012     51
+2013     24
+2014     18
+2015      8
+2016      5
+2017      6
+dtype: int64
+```
+
+5. 매년 각 분기에 파산한 은행이 궁금하다면 closing_year와 closing_quarter를 기준으로 데이터셋을 그룹화하고 size()로 해당하는 은행 개수를 구할 수 있다.
+```python
+closing_year_q = (
+         banks
+         .groupby(['closing_year', 'closing_quarter'])
+         .size()
+)
+
+print(closing_year_q)
+```
+📝 실행결과
+```
+closing_year  closing_quarter
+2000          4                   2
+2001          1                   1
+              2                   1
+              3                   2
+2002          1                   6
+              2                   2
+              3                   1
+              4                   2
+2003          1                   1
+              2                   1
+              4                   1
+2004          1                   3
+              2                   1
+2007          1                   1
+              3                   1
+              4                   1
+2008          1                   2
+              2                   2
+              3                   9
+              4                  12
+2009          1                  21
+              2                  24
+              3                  50
+              4                  45
+2010          1                  41
+              2                  45
+              3                  41
+              4                  30
+2011          1                  26
+              2                  22
+              3                  26
+              4                  18
+2012          1                  16
+              2                  15
+              3                  12
+              4                   8
+2013          1                   4
+              2                  12
+              3                   6
+              4                   2
+2014          1                   5
+              2                   7
+              3                   2
+              4                   4
+2015          1                   4
+              2                   1
+              3                   1
+              4                   2
+2016          1                   1
+              2                   2
+              3                   2
+2017          1                   3
+              2                   3
+dtype: int64
+```
+
+6. 연도별 분기별 파산한 은행 개수를 시각화
+```python
+import matplotlib.pyplot as plt
+
+fig,ax = plt.subplots()
+ax = closing_year.plot()
+plt.show()
+```
+📝 실행결과
