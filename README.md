@@ -1,2 +1,2 @@
 # fintech-practice
-My first Github project
+All about my fintect-practice
